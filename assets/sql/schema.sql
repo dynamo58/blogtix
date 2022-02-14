@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS authors (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
 	avatar TEXT NOT NULL DEFAULT '_default',
     nick TEXT NOT NULL UNIQUE,
     bio TEXT,
@@ -18,7 +18,28 @@ CREATE TABLE IF NOT EXISTS articles (
     edit_date DATE NOT NULL DEFAULT CURRENT_DATE,
     created_date DATE NOT NULL DEFAULT CURRENT_DATE,
     author_id INTEGER NOT NULL,
-    CONSTRAINT fk_author_id,
+    CONSTRAINT fk_author_id
         FOREIGN KEY (author_id)
             REFERENCES authors(id)
 );
+
+--
+
+DROP FUNCTION IF EXISTS sync_date;
+DROP TRIGGER IF EXISTS sync_article_date;
+
+CREATE FUNCTION sync_date() RETURNS trigger AS $$
+BEGIN
+  NEW.registered_date := NOW();
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER
+  sync_article_date
+BEFORE UPDATE ON
+  articles
+FOR ROW EXECUTE PROCEDURE
+  sync_date();

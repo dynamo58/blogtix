@@ -1,0 +1,6 @@
+# 404 - Článek nenalezen
+---
+
+Bohužel vámi hledaný článek („**{{ NAME }}**“) neexistuje.
+	
+<div align=\"center\"><img src=\"https://cdn.7tv.app/emote/60b05d483cadd71dffc67135/4x\"/></div>
