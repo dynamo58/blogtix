@@ -9,7 +9,7 @@ pub mod routes;
 
 use handlers::{*};
 
-use actix_web::{web, App, HttpServer, HttpResponse};
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use tokio_postgres::NoTls;
 
@@ -23,19 +23,20 @@ async fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(middleware::Compress::default())
-            //.wrap(Logger::default())
+            // .wrap(Logger::default())
+            // .wrap(middleware::Compress::default())
             .app_data(web::Data::new(pool.clone()))
+                .service(fs::Files::new("/static", ".").show_files_listing())
                 .service(web::resource("/").route(web::get().to(get_home)))
                 .service(web::resource("/about").route(web::get().to(get_about)))
-                .service(web::resource("/article").route(web::get().to(get_article)))
+                .service(web::resource("/articles/{article_ref}").route(web::get().to(get_article)))
                 .service(web::resource("/authors").route(web::post().to(add_author)))
-                .service(web::resource("/article").route(web::post().to(add_article)))
+                .service(web::resource("/articles").route(web::post().to(add_article)))
                 // .default_service().to(not_found)
                 .service(web::get().to(not_found))
             .bind(config.server_addr.clone())?
             .run();
-
+    });
     println!("Server running at http://{}/", config.server_addr);
 
     server.await
