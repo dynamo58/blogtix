@@ -74,12 +74,12 @@ pub async fn get_about() -> impl Responder {
 #[get("/articles/{article_ref}")]
 pub async fn get_article(
 	db_pool: web::Data<Pool>,
-	path: web::Path<String>
+	article_ref: web::Path<String>
 ) -> Result<HttpResponse, Error> {
-	let article_ref = path.into_inner();
-	println!("ha {}", article_ref);
+	let article_ref = article_ref.into_inner();
 	let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
     let article = db::get_article(&client, article_ref.clone()).await?;
+	
 	// let meta = Meta::from([
 	// 	("{{ TITLE }}".into(), format!("{} - smolik.xyz", article.name_ref)),
 	// 	("{{ CREATED }}".into(), article.created_date),
@@ -90,14 +90,25 @@ pub async fn get_article(
 
 	// let html = build_html(article.content, meta: Meta, Page::Article);
 
-
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(format!("<p>Content of article <b>{}</b></p>", article_ref)))
+        .body("<p>feels dank man</p>"))
 }
 
 pub async fn not_found() -> impl Responder {
+	let md = include_str!("../assets/md/400.md");
+	let html = build_html(md, Meta::new(), Page::Error);
+
 	HttpResponse::Ok()
 		.content_type("text/html")
-		.body("<p>Route not found</p>")
+		.body(html)
+}
+
+pub async fn server_error() -> impl Responder {
+	let md = include_str!("../assets/md/500.md");
+	let html = build_html(md, Meta::new(), Page::Error);
+
+	HttpResponse::Ok()
+		.content_type("text/html")
+		.body(html)
 }

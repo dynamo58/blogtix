@@ -24,3 +24,4 @@ pub struct Article {
     pub created_date: chrono::NaiveDate,
     pub author_id: i32,
 }
+

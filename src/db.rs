@@ -56,7 +56,12 @@ pub async fn get_article(client: &Client, article_ref: String) -> Result<Article
 		.query(&stmt, &[&article_ref])
 		.await?
 		.first()
-		.map(|row| (Article::from_row_ref(row).unwrap(), Author::from_row_ref(row).unwrap()))
+		.map(|row|
+			(
+				Article::from_row_ref(row).unwrap(),
+				Author::from_row_ref(row).unwrap()
+			)
+		)
 		// .ok_or(MyError::NotFound)
 		.unwrap();
 	

@@ -1,3 +1,5 @@
+use crate::handlers::{not_found, server_error};
+
 use actix_web::{HttpResponse, ResponseError};
 use deadpool_postgres::PoolError;
 use derive_more::{Display, From};
@@ -16,11 +18,13 @@ impl std::error::Error for MyError {}
 impl ResponseError for MyError {
     fn error_response(&self) -> HttpResponse {
         match *self {
-            MyError::NotFound => HttpResponse::NotFound().finish(),
+            MyError::NotFound => not_found(),
             MyError::PoolError(ref err) => {
-                HttpResponse::InternalServerError().body(err.to_string())
+                log::warn!("Encountered pool error: {}", err.to_string());
+
+                server_error()
             }
-            _ => HttpResponse::InternalServerError().finish(),
+            _ => server_error()),
         }
     }
 }
