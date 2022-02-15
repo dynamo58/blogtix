@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
 				.service(web::resource("/").route(web::get().to(get_home)))
 				.service(web::resource("/about").route(web::get().to(get_about)))
-				.service(web::resource("/articles/{article_ref}").route(web::get().to(get_article)))
+				.service(get_article)
 				.service(web::resource("/authors").route(web::post().to(add_author)))
 				.service(web::resource("/articles").route(web::post().to(add_article)))
 			.service(Files::new("/", "./static/"))

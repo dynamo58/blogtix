@@ -4,7 +4,7 @@ use crate::models::{*};
 use crate::files::{build_html};
 use crate::{Page, Meta};
 
-use actix_web::{web, Error, HttpResponse, Responder};
+use actix_web::{web, Error, HttpResponse, Responder, get};
 use deadpool_postgres::{Client, Pool};
 
 pub async fn add_author(
@@ -71,26 +71,29 @@ pub async fn get_about() -> impl Responder {
         .body(html)
 }
 
+#[get("/articles/{article_ref}")]
 pub async fn get_article(
 	db_pool: web::Data<Pool>,
-	article_ref: String,
+	path: web::Path<String>
 ) -> Result<HttpResponse, Error> {
+	let article_ref = path.into_inner();
+	println!("ha {}", article_ref);
 	let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
-    let article = db::get_article(&client, article_ref).await?;
-	let meta = Meta::from([
-		("{{ TITLE }}".into(), format!("{} - smolik.xyz", article.name_ref)),
-		("{{ CREATED }}".into(), article.created_date),
-		("{{ LAST_EDIT }}".into(), article.edit_date), 
-		("{{ AUTHOR }}".into(), article.), 
-		("{{ AVATAR }}".into(), article.created_date), 
-	]);
+    let article = db::get_article(&client, article_ref.clone()).await?;
+	// let meta = Meta::from([
+	// 	("{{ TITLE }}".into(), format!("{} - smolik.xyz", article.name_ref)),
+	// 	("{{ CREATED }}".into(), article.created_date),
+	// 	("{{ LAST_EDIT }}".into(), article.edit_date), 
+	// 	("{{ AUTHOR }}".into(), article.), 
+	// 	("{{ AVATAR }}".into(), article.created_date), 
+	// ]);
 
-	let html = build_html(article.content, meta: Meta, Page::Article);
+	// let html = build_html(article.content, meta: Meta, Page::Article);
 
 
-    HttpResponse::Ok()
+    Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body(format!("<p>Content of article <b>{}</b></p>", article_ref))
+        .body(format!("<p>Content of article <b>{}</b></p>", article_ref)))
 }
 
 pub async fn not_found() -> impl Responder {
