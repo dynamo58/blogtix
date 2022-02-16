@@ -46,45 +46,29 @@ pub async fn add_article(client: &Client, article_info: Article) -> Result<Artic
 		.ok_or(MyError::NotFound)
 }
 
-pub async fn get_article(client: &Client, article_ref: String) -> Result<Article, MyError> {
-	let _stmt = "SELECT * FROM articles INNER JOIN authors ON articles.author_id = authors.id WHERE name_ref='$1' LIMIT 1;";
+pub async fn get_article(client: &Client, article_ref: String) -> Result<(Article, Author), MyError> {
+	let _stmt = "SELECT * FROM articles JOIN authors ON articles.author_id=authors.id WHERE name_ref=$1 LIMIT 1;";
 	let stmt = client.prepare(&_stmt).await.unwrap();
-	println!("param {}", article_ref);
 	// there must be a better way to do this
 	// how the fuck do I use inner join here?
-	let article = client
+	client
 		.query(&stmt, &[&article_ref])
 		.await?
-		.first()
-		.map(|row|
-			(
-				Article::from_row_ref(row).unwrap(),
-				Author::from_row_ref(row).unwrap()
-			)
-		)
-		// .ok_or(MyError::NotFound)
-		.unwrap();
-	
-
-	println!("ttt {:?}", article);
-	// let _stmt = "SELECT * FROM authors WHERE id=$1 LIMIT 1";
-	// let stmt = client.prepare(&_stmt).await.unwrap();
-
-	// let author = client
-	// 	.query(&stmt, &[&article.author_id])
-	// 	.await?
-	// 	.iter()
-	// 	.map(|row| Article::from_row_ref(row).unwrap())
-	// 	.collect::<Vec<Article>>()
-	// 	.pop()
-	// 	.ok_or(MyError::NotFound);
-
-	Ok(article.0)
+		.iter()
+		.map(|row| {
+				(
+					Article::from_row_ref(row).unwrap(),
+					Author::from_row_ref(row).unwrap(),
+				)
+		})
+		.collect::<Vec<(Article, Author)>>()
+		.pop()
+		.ok_or(MyError::NotFound)
 }
 
 pub async fn get_articles(client: &Client) -> Result<Vec<Article>, MyError> {
 	let _stmt = "SELECT * FROM articles";
-	let _stmt = _stmt.replace("$table_fields", &Article::sql_table_fields());
+	// let _stmt = _stmt.replace("$table_fields", &Article::sql_table_fields());
 	let stmt = client.prepare(&_stmt).await.unwrap();
 
 	Ok(client

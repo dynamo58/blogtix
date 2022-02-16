@@ -1218,6 +1218,7 @@ dependencies = [
  "deadpool-postgres",
  "derive_more",
  "dotenv",
+ "log",
  "pulldown-cmark",
  "regex",
  "serde 1.0.136",

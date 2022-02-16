@@ -1,4 +1,5 @@
-use crate::handlers::{not_found, server_error};
+use crate::files::build_html;
+use crate::{Page, Meta};
 
 use actix_web::{HttpResponse, ResponseError};
 use deadpool_postgres::PoolError;
@@ -8,7 +9,7 @@ use tokio_postgres::error::Error as PGError;
 
 #[derive(Display, From, Debug)]
 pub enum MyError {
-    NotFound,
+	NotFound,
     PGError(PGError),
     PGMError(PGMError),
     PoolError(PoolError),
@@ -18,13 +19,14 @@ impl std::error::Error for MyError {}
 impl ResponseError for MyError {
     fn error_response(&self) -> HttpResponse {
         match *self {
-            MyError::NotFound => not_found(),
-            MyError::PoolError(ref err) => {
-                log::warn!("Encountered pool error: {}", err.to_string());
+            _ => {
+				let md = include_str!("../assets/md/500.md");
+				let html = build_html(md.into(), Meta::new(), Page::Error);
 
-                server_error()
-            }
-            _ => server_error()),
+				HttpResponse::Ok()
+					.content_type("text/html")
+					.body(html)
+			}
         }
     }
 }

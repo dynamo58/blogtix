@@ -11,7 +11,7 @@ pub struct Author {
     pub registered_date: chrono::NaiveDate,
 }
 
-#[derive(Debug, Deserialize, PostgresMapper, Serialize, Clone)]
+#[derive(Debug, Deserialize, PostgresMapper, Serialize)]
 #[pg_mapper(table = "authors")]
 pub struct Article {
     pub id: i32,

@@ -1,2 +1,7 @@
+/static/*.min.*
+/static/avatars/*
+!/static/avatars/_default.webp
+/static/thumbnails/*
+!/static/thumbnails/_default.webp
 /target
 .env

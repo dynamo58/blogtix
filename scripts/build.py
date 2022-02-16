@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-# 						READ !
-# ------------------------------------------------------
 # This script (and all the other ones in this directory)
 # 	are designed to be ran from the root directory
 #	of this project (the one with the Cargo.toml file)
@@ -13,19 +11,13 @@ from os import path, remove, mkdir, system as run
 from typing import List
 
 def main(args):
-    if "--static" in args:
-        compile_everything(True, False)
-
+	if "--static" in args:
+		compile_everything(True, False)
+		
 		if path.isfile("static.zip"): remove("static.zip")
 		if path.isdir("_temp"): rmtree("_temp")
+		copytree("static", "_temp")
 		run("cargo run --release --bin build_static")
-
-		copy("static/main.min.css", "_temp")
-		copy("static/main.min.js", "_temp")
-		copy("static/favicon.ico", "_temp")
-
-		copytree("static/avatars", "_temp/avatars")
-		copytree("static/thumbnails", "_temp/thumbnails")
 
 		make_archive("static", "zip", "_temp")
         # rmtree("_temp")
@@ -35,12 +27,9 @@ def main(args):
 		compile_everything(True, False)
 		if path.isdir("_temp"): rmtree("_temp")
 		
-        mkdir("_temp")
-		mkdir(path.join("_temp", "assets"))
-		open(path.join("_temp", "assets", "db.db"), mode="a").close()
-		
-		copytree("web", 	 path.join("_temp", "static"))
-		# copytree(path.join("assets", "snippets"), path.join("_temp", "snippets"))
+		mkdir("_temp")
+		copytree("assets", path.join("_temp", "assets"))
+		copytree("static", path.join("_temp", "static"))
 
 		for f in [
 			path.join("target", "release", "rusty_blog"),
@@ -56,31 +45,22 @@ def main(args):
 		make_archive("rusty_blog", "zip", "_temp")
 		# rmtree("_temp")
     
-    else:
-        print("Nothing specified, aborting")
+	else:
+		compile_everything(False, True)
 
 
 def compile_everything(release: bool, run_after: bool):	
 	# compile misc
 	run("sass-rs --sass --compressed < src/main.sass > static/main.min.css")
 	run("minifier src/main.js")
-
-    move("src/main.min.js", "static/main.min.js")
+	
+	move("src/main.min.js", "static/main.min.js")
 
 	# run main stuff
-	if run_after:
-		if release:
-			run("cargo run --release")
-		else:
-			run("cargo run")
-	else:
-		if release:
-			run("cargo build --release")
-		else:
-			run("cargo build")
-    
-    
+	run_cmd = "cargo " + ("run" if run_after else "build") + (" --release" if release else "")
+	run(run_cmd)
 
-if __name__ = "__main__":
-    from sys import argv
-    main(argv)
+
+if __name__ == "__main__":
+	from sys import argv
+	main(argv)

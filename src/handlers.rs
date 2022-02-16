@@ -78,35 +78,26 @@ pub async fn get_article(
 ) -> Result<HttpResponse, Error> {
 	let article_ref = article_ref.into_inner();
 	let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
-    let article = db::get_article(&client, article_ref.clone()).await?;
+    let (article, author) = db::get_article(&client, article_ref.clone()).await?;
 	
-	// let meta = Meta::from([
-	// 	("{{ TITLE }}".into(), format!("{} - smolik.xyz", article.name_ref)),
-	// 	("{{ CREATED }}".into(), article.created_date),
-	// 	("{{ LAST_EDIT }}".into(), article.edit_date), 
-	// 	("{{ AUTHOR }}".into(), article.), 
-	// 	("{{ AVATAR }}".into(), article.created_date), 
-	// ]);
+	let meta = Meta::from([
+		("TITLE".into(),     format!("{} - smolik.xyz", article.name)),
+		("CREATED".into(),   format!("{}", article.created_date)),
+		("LAST_EDIT".into(), format!("{}", article.edit_date)), 
+		("AUTHOR".into(),    author.nick.into()), 
+		("AVATAR".into(),    format!("{}", author.avatar)), 
+	]);
 
-	// let html = build_html(article.content, meta: Meta, Page::Article);
+	let html = build_html(article.content, meta, Page::Article);
 
     Ok(HttpResponse::Ok()
         .content_type("text/html")
-        .body("<p>feels dank man</p>"))
+        .body(html))
 }
 
 pub async fn not_found() -> impl Responder {
 	let md = include_str!("../assets/md/400.md");
-	let html = build_html(md, Meta::new(), Page::Error);
-
-	HttpResponse::Ok()
-		.content_type("text/html")
-		.body(html)
-}
-
-pub async fn server_error() -> impl Responder {
-	let md = include_str!("../assets/md/500.md");
-	let html = build_html(md, Meta::new(), Page::Error);
+	let html = build_html(md.into(), Meta::new(), Page::Error);
 
 	HttpResponse::Ok()
 		.content_type("text/html")

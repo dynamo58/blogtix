@@ -1,11 +1,6 @@
 use crate::{Page, Meta};
 
-use std::fs;
 use pulldown_cmark::{html, Options, Parser};
-
-
-// read a file
-
 
 // convert a markdown file to html via a template and of the dynamic data
 pub fn build_html(md: String, meta: Meta, page: Page) -> String {
