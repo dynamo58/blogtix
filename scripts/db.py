@@ -7,7 +7,6 @@
 # insert dummy data from db / erase db data
 
 
-
 def main(args):
 	from dotenv import load_dotenv
 	import psycopg2
@@ -25,11 +24,8 @@ def main(args):
 	cur = conn.cursor()
 
 	if "--insert" in args or "-i" in args:
-		num = 10
-
-		try:
-			num = int(args[args.index("--num")+1])
-		except: pass
+		try:    num = int(args[args.index("--num")+1])
+		except: num = 10
 
 		ARTICLE_CONTENT = """
 [link](https://qr.ae/pG3NHP)
@@ -58,16 +54,21 @@ fn main() {
 ```
 		"""
 
+		# literally the hash of "password"
+		hashed = "$2b$12$0SpyqNBnt0hvJvrl87fvB.yTV36LTaNHxLPBFhnBAxuxIBxDlPAXu"
 		for i in range(2):
 			cur.execute("""
 				INSERT INTO authors (
 					nick,
-					bio)
+					bio,
+					password
+				)
 				VALUES (
 					'author{}',
-					'this is the bio of author{}'
+					'this is the bio of author{}',
+					'{}'
 				)
-			""".format(i, i))
+			""".format(i, i, hashed))
 
 		conn.commit()
 

@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS authors (
   	avatar TEXT NOT NULL DEFAULT '_default',
     nick TEXT NOT NULL UNIQUE,
     bio TEXT,
+	password TEXT,
     registered_date DATE NOT NULL DEFAULT CURRENT_DATE
 );
 

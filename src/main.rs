@@ -23,7 +23,6 @@ use tokio_postgres::NoTls;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-
     let config = config::Config::from_env().unwrap();
     let pool = config.pg.create_pool(None, NoTls).unwrap();
 
@@ -35,14 +34,13 @@ async fn main() -> std::io::Result<()> {
 				.service(web::resource("/").route(web::get().to(get_home)))
 				.service(web::resource("/about").route(web::get().to(get_about)))
 				.service(get_article)
-				.service(web::resource("/authors").route(web::post().to(add_author)))
-				.service(web::resource("/articles").route(web::post().to(add_article)))
+				// .service(web::resource("/authors").route(web::post().to(add_author)))
+				.service(web::resource("/api/articles").route(web::post().to(add_article)))
 			.service(Files::new("/", "./static/"))
 			.default_service(web::to(|| not_found()))
 	})
 		.bind(config.server_addr.clone())?
 		.run();
 
-    log::info!("Server running at http://{}/", config.server_addr);
-    server.await
+	server.await
 }

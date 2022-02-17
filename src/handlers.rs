@@ -1,32 +1,45 @@
 use crate::db;
 use crate::errors::MyError;
-use crate::models::{*};
 use crate::files::{build_html};
-use crate::{Page, Meta};
+use crate::{Page, Meta, models::{ArticleSubmission, SubmissionResult}};
 
 use actix_web::{web, Error, HttpResponse, Responder, get};
 use deadpool_postgres::{Client, Pool};
 
-pub async fn add_author(
-    user: web::Json<Author>,
-    db_pool: web::Data<Pool>,
-) -> Result<HttpResponse, Error> {
-    let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
-    let author_info: Author = user.into_inner();
-    let new_author = db::add_author(&client, author_info).await?;
+// pub async fn add_author(
+//     user: web::Json<Author>,
+//     db_pool: web::Data<Pool>,
+// ) -> Result<HttpResponse, Error> {
+//     let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
+//     let author_info: Author = user.into_inner();
+//     let new_author = db::add_author(&client, author_info).await?;
 
-    Ok(HttpResponse::Ok().json(new_author))
-}
+//     Ok(HttpResponse::Ok().json(new_author))
+// }
 
 pub async fn add_article(
-    article: web::Json<Article>,
+    article: web::Json<ArticleSubmission>,
     db_pool: web::Data<Pool>,
 ) -> Result<HttpResponse, Error> {
     let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
-    let article_info: Article = article.into_inner();
-    let new_article = db::add_article(&client, article_info).await?;
+    let submission: ArticleSubmission = article.into_inner();
 
-    Ok(HttpResponse::Ok().json(new_article))
+	let auth = db::auth_submission(&client, submission).await?;
+
+	match auth {
+		SubmissionResult::Accepted(article) => {
+			db::add_article(&client, article).await?;
+			Ok(HttpResponse::Ok().json("
+				{{
+					\"status\": 200,
+					\"message\": \"Article created.\" 
+				}}")
+			)
+		},
+		SubmissionResult::Rejected(msg) => {
+			return Ok(HttpResponse::Ok().json(msg))
+		}
+	}    
 }
 
 pub async fn get_home(

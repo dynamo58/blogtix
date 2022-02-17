@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap')
+@import url('https://fonts.googleapis.com/css?family=Merriweather&display=swap')
 
 \:root
 	--bg-main:    #222  
@@ -6,7 +7,8 @@
 	--fg-main:    #fff  
 	--fg-accent1: #fa5
 	--fg-accent2: #84a
-	--font: 'Open Sans', serif
+	--font-sans_serif: 'Open Sans', sans-serif
+	--font-serif: 'Merriweather', serif
 	--gradient1: radial-gradient(#cda432,#ce9936)
 	--gradient-mask: radial-gradient(#444, #111)
 
@@ -21,13 +23,18 @@ body
 	line-height: 1.6
 	background: var(--bg-main)
 	color: var(--fg-main)
-	font-family: var(--font)
+	font-family: var(--font-sans_serif)
 
 p,
 h1,
 h2,
 h3
 	margin: 0
+
+
+p,
+li
+	font-family: var(--font-serif)
 
 img
 	display: block
