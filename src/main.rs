@@ -31,11 +31,20 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(middleware::Compress::default())
             .app_data(web::Data::new(pool.clone()))
-				.service(web::resource("/").route(web::get().to(get_home)))
-				.service(web::resource("/about").route(web::get().to(get_about)))
+				// frontend
+					// home page
+				.service(get_home)
+					// about page
+				.service(get_about)
+					// article page
 				.service(get_article)
-				// .service(web::resource("/authors").route(web::post().to(add_author)))
-				.service(web::resource("/api/articles").route(web::post().to(add_article)))
+					// editing an article
+				.service(edit_article)
+					// adding an article
+				.service(add_article)
+				// API
+				.service(put_article)
+				.service(post_article)
 			.service(Files::new("/", "./static/"))
 			.default_service(web::to(|| not_found()))
 	})

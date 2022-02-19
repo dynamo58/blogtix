@@ -5,13 +5,18 @@ use pulldown_cmark::{html, Options, Parser};
 // convert a markdown file to html via a template and of the dynamic data
 pub fn build_html(md: String, meta: Meta, page: Page) -> String {
     let mut html_template: String = match page {
-        Page::Article => include_str!("../assets/html/article.html").into(),
-        _             => include_str!("../assets/html/default.html").into(),
+        Page::Article        => include_str!("../assets/html/article.html").into(),
+		Page::EditingArticle => include_str!("../assets/html/editing_article.html").into(),
+        _                    => include_str!("../assets/html/default.html").into(),
     };
 
+	if let Page::EditingArticle = page {
+
+	}
     // convert the markdown to html
     let mut options = Options::empty();
     options.insert(Options::ENABLE_STRIKETHROUGH);
+	options.insert(Options::ENABLE_TABLES);
     let parser = Parser::new_ext(&md, options);
     let mut html_output: String = String::with_capacity(md.len() * 3 / 2);
     html::push_html(&mut html_output, parser);

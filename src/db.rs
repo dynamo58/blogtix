@@ -1,29 +1,8 @@
 use crate::{errors::MyError, models::*};
 
-
 use bcrypt::verify;
 use deadpool_postgres::Client;
 use tokio_pg_mapper::FromTokioPostgresRow;
-use chrono::{NaiveDate, Datelike};
-use std::time::SystemTime;
-// pub async fn add_author(client: &Client, author_info: Author) -> Result<Author, MyError> {
-// 	let _stmt =
-// 		"INSERT INTO authors(avatar, nick, bio) VALUES ($1, $2, $3) RETURNING $table_fields;";
-// 	let _stmt = _stmt.replace("$table_fields", &Author::sql_table_fields());
-// 	let stmt = client.prepare(&_stmt).await.unwrap();
-
-// 	client
-// 		.query(
-// 			&stmt,
-// 			&[&author_info.avatar, &author_info.nick, &author_info.bio],
-// 		)
-// 		.await?
-// 		.iter()
-// 		.map(|row| Author::from_row_ref(row).unwrap())
-// 		.collect::<Vec<Author>>()
-// 		.pop()
-// 		.ok_or(MyError::NotFound)
-// }
 
 pub async fn add_article(client: &Client, article: Article) -> Result<(), MyError> {
 	let _stmt = "INSERT INTO articles(name_ref, name, content, description, thumbnail, author_id) VALUES ($1, $2, $3, $4, $5, $6);";
@@ -42,6 +21,26 @@ pub async fn add_article(client: &Client, article: Article) -> Result<(), MyErro
 			],
 		)
 		.await?;
+	
+	Ok(())
+}
+
+pub async fn update_article(client: &Client, article: &Article) -> Result<(), MyError> {
+	let _stmt = "UPDATE articles SET name=$1, content=$2, description=$3 WHERE name_ref=$4;";
+	let stmt = client.prepare(&_stmt).await.unwrap();
+
+	client
+		.query(
+			&stmt,
+			&[
+				&article.name,
+				&article.content,
+				&article.description,
+				&article.name_ref,
+			]
+		)
+		.await
+		.unwrap();
 	
 	Ok(())
 }
@@ -77,8 +76,7 @@ pub async fn get_articles(client: &Client) -> Result<Vec<Article>, MyError> {
 		.collect::<Vec<Article>>())
 }
 
-
-pub async fn auth_submission(client: &Client, sbmsn: ArticleSubmission) -> Result<SubmissionResult, MyError> {
+pub async fn auth_submission(client: &Client, sbmsn: &ArticleSubmission) -> Result<SubmissionResult, MyError> {
 	let _stmt = "SELECT * FROM authors WHERE nick=$1;";
 	let stmt = client.prepare(&_stmt).await.unwrap();
 
@@ -98,24 +96,29 @@ pub async fn auth_submission(client: &Client, sbmsn: ArticleSubmission) -> Resul
 	let valid = verify(sbmsn.password.clone(), &author.password).unwrap();
 
 	if valid {
-		let stamp = format!("{}", SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_micros());
-		let now = chrono::Utc::now();
-		let curr_date = NaiveDate::from_ymd(now.year(), now.month(), now.day());
-
-		let article = Article {
-			id: 0,
-			author_id: author.id,
-			content: sbmsn.content,
-			created_date: curr_date,
-			edit_date: curr_date,
-			description: sbmsn.description,
-			name: sbmsn.name,
-			name_ref: stamp,
-			thumbnail: "_default".into(), // TODO
-		};
-
+		let article = sbmsn.to_article(author.id);
 		return Ok(SubmissionResult::Accepted(article));
 	}
 
-	Ok(SubmissionResult::Rejected("".into()))
+	Ok(SubmissionResult::Rejected("Nickname and password do not match".into()))
+}
+
+pub async fn article_exists(
+	client: &Client,
+	sbmsn: &ArticleSubmission
+) -> Result<bool, MyError> {
+	let _stmt = "SELECT id FROM articles WHERE name_ref=$1;";
+	let stmt = client.prepare(&_stmt).await.unwrap();
+
+	let articles = client
+		.query(&stmt, &[&sbmsn.name_ref])
+		.await?
+		.iter()
+		.map(|row| row.get("id"))
+		.collect::<Vec<i32>>();
+	
+	match articles.len() {
+		0 => Ok(false),
+		_ => Ok(true), // should be 1 or 0, but whatever
+	}
 }

@@ -53,8 +53,12 @@ def compile_everything(release: bool, run_after: bool):
 	# compile misc
 	run("sass-rs --sass --compressed < src/main.sass > static/main.min.css")
 	run("minifier src/main.js")
+	run("minifier src/article_edit.js")
 	
+
 	move("src/main.min.js", "static/main.min.js")
+	move("src/article_edit.min.js", "static/article_edit.min.js")
+
 
 	# run main stuff
 	run_cmd = "cargo " + ("run" if run_after else "build") + (" --release" if release else "")

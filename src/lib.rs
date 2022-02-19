@@ -31,4 +31,5 @@ pub enum Page {
     Article,
     Error,
     Home,
+	EditingArticle,
 }

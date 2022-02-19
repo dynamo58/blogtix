@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap')
 @import url('https://fonts.googleapis.com/css?family=Merriweather&display=swap')
+@import url('https://fonts.googleapis.com/css?family=Red+Hat+Mono&display=swap')
 
 \:root
 	--bg-main:    #222  
@@ -9,6 +10,7 @@
 	--fg-accent2: #84a
 	--font-sans_serif: 'Open Sans', sans-serif
 	--font-serif: 'Merriweather', serif
+	--font-mono: 'Red Hat Mono', monospace
 	--gradient1: radial-gradient(#cda432,#ce9936)
 	--gradient-mask: radial-gradient(#444, #111)
 
@@ -31,7 +33,6 @@ h2,
 h3
 	margin: 0
 
-
 p,
 li
 	font-family: var(--font-serif)
@@ -44,6 +45,9 @@ a
 	text-decoration: none
 	color: var(--fg-main)
 
+a.link
+	color: var(--fg-accent1)
+
 .article
 	margin: 3em
 	padding: 1em
@@ -52,6 +56,20 @@ a
 	font-weight: 800
 	color: var(--fg-main)
 	background-color: var(--bg-main)
+
+textarea
+	width: 100%
+	height: 100%
+	min-height: 40em
+	resize: none
+	background: none
+	color: var(--fg-main)
+	font-size: 1.125em
+
+pre,
+code,
+textarea
+	font-family: var(--font-mono)
 
 .article-body_wrapper
 	display: flex
@@ -64,7 +82,6 @@ a
 	padding: 1em
 	border-radius: .3em
 	background-color: var(--bg-sec)
-
 
 table
 	column-gap: 1em
@@ -88,7 +105,7 @@ header
 
 		&:hover
 			background-color: var(--bg-sec)
-		
+
 @media only screen and (max-width: 500px)
 	header
 		width: 100%
@@ -100,10 +117,8 @@ header
 footer
 	margin-top: 5em
 
-
 code
 	display: block
 	white-space: pre-wrap
-	border-radius: 1em;
-	padding: 0.75em;
-	font-size: 1.25em;
+	border-radius: 1em
+	padding: 0.25em 0.5em
