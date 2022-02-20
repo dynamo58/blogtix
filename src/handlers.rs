@@ -92,10 +92,14 @@ pub async fn edit_article(
 	let client: Client = db_pool.get().await.map_err(MyError::PoolError)?;
 
 
-	let (article, _) = db::get_article(&client, article_ref).await?;
+	let (article, author) = db::get_article(&client, article_ref).await?;
 
 	let meta = Meta::from([
 		("TITLE".into(), format!("Úprava „{}“ - smolik.xyz", article.name)),
+		("NAME".into(), article.name),
+		("DESCRIPTION".into(), article.description),
+		("AUTHOR".into(), author.nick),
+
 	]);
 
 	let html = build_html(article.content, meta, Page::EditingArticle);
@@ -106,16 +110,25 @@ pub async fn edit_article(
 }
 
 #[get("/new/{article_ref}")]
-pub async fn add_article(
-	db_pool: web::Data<Pool>,
-	article_ref: web::Path<String>
-) -> Result<HttpResponse, Error> {
-	todo!()
+pub async fn add_article() -> Result<HttpResponse, Error> {
+	let meta = Meta::from([
+		("TITLE".into(),       "Tvorba nového článku - smolik.xyz".into()),
+		("NAME".into(),        "".into()),
+		("DESCRIPTION".into(), "".into()),
+		("AUTHOR".into(),      "".into()),
+
+	]);
+
+	let html = build_html("".into(), meta, Page::EditingArticle);
+
+    Ok(HttpResponse::Ok()
+        .content_type("text/html")
+        .body(html))
 }
 
 // ------------------------------------------------------
 // API
-// - designed to be called from frontend JS
+// - called from frontend
 // ------------------------------------------------------
 
 #[put("/api/article")]

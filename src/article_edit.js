@@ -1,4 +1,9 @@
 document.getElementById("submitBtn").onclick = async () => {
+	const responseField = document.getElementById("responseText");
+	const loadingImg = document.getElementById("loadingIcon");
+
+	loadingImg.style.display = "block";
+
 	const nameRef         = window.location.pathname.split("/").pop();
 	const newName         = document.getElementById("articleName").value;
 	const newDescription  = document.getElementById("articleDescription").value;
@@ -15,7 +20,7 @@ document.getElementById("submitBtn").onclick = async () => {
 		case "new":
 			_method = "POST";
 			break;
-	} 
+	}
 
 	await fetch("/api/article", {
 		method: _method,
@@ -32,5 +37,9 @@ document.getElementById("submitBtn").onclick = async () => {
 			"password": _password
 		})
 	})
-		.then(res => console.log(res.json()));
+		.then(res => res.json())
+		.then(data => {
+			loadingImg.style.display = "none";
+			responseField.innerText = data.message;
+		});
 }

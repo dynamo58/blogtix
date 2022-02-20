@@ -65,7 +65,7 @@ pub async fn get_article(client: &Client, article_ref: String) -> Result<(Articl
 }
 
 pub async fn get_articles(client: &Client) -> Result<Vec<Article>, MyError> {
-	let _stmt = "SELECT * FROM articles";
+	let _stmt = "SELECT * FROM articles ORDER BY created_date DESC;";
 	let stmt = client.prepare(&_stmt).await.unwrap();
 
 	Ok(client

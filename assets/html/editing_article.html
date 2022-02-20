@@ -20,23 +20,61 @@
         </a>
     </header>
 
-	<div class="container">
-		<input type="text"     placeholder="Název"  id="articleName">       <br><br>
-		<input type="text"     placeholder="Popis"  id="articleDescription"><br><br>
-		<input type="text"     placeholder="Autor"  id="authorName">        <br><br>
-		<input type="password" placeholder="Heslo"  id="_authorPassword">   <br><br>
-		<input type="file" value="Nahrát miniaturu" id="thumbnail">         <br>
+	<div class="container center-content form-container">
+		<div class="form-group field">
+			<input
+				type="text"
+				name="name"
+				class="form-field"
+				value="{{ NAME }}"
+				placeholder="Název"
+				id="articleName">
+			<label for="name" class="form-label">Název</label>
+		</div>
+		<div class="form-group field">
+			<input
+				type="text"
+				name="description"
+				class="form-field"
+				value="{{ DESCRIPTION }}"
+				placeholder="Popis" 
+				id="articleDescription">
+			<label for="description" class="form-label">Popis</label>
+		</div>
+		<div class="form-group field">
+			<input
+				type="text"
+				name="author"
+				class="form-field"
+				value="{{ AUTHOR }}"
+				placeholder="Autor" 
+				id="authorName">
+			<label for="author" class="form-label">Autor</label>
+		</div>
+		<div class="form-group field">
+			<input
+				type="password"
+				name="password"
+				class="form-field"
+				value=""
+				placeholder="Heslo" 
+				id="_authorPassword">
+			<label for="password" class="form-label">Heslo</label>
+		</div>
+		<br>
+		<input
+			type="file"
+			value="Nahrát miniaturu"
+			id="thumbnail">
 	</div>
 
-    <div class="container">
-		<textarea class="editing-article" id="articleContent">
-			{{ CONTENT }}
-		</textarea>
+    <div class="container editing-article_wrapper">
+		<textarea class="editing-article" id="articleContent">{{ CONTENT }}</textarea>
     </div>
 
-	<div class="container">
+	<div class="container response-wrapper">
 		<button id="submitBtn">Uložit</button>
-		<p id="responseText"></p>
+		<span id="responseText"><img src="/loading.svg" id="loadingIcon"></span>
 	</div>
 
     <script src="/article_edit.min.js"></script>
