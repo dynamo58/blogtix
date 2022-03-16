@@ -1,4 +1,5 @@
 # O mně
+
 ---
 
 Jmenuji se Marek Smolík a jsem nadšenec do IT, programování a matematiky.
